@@ -27,6 +27,16 @@ namespace CandH_API
     {
       var connection = @"Server=(localdb)\mssqllocaldb;Database=CandH_DB;Trusted_Connection=True;";
       services.AddDbContext<CandH_Context>(options => options.UseSqlServer(connection));
+
+      services.AddCors(options =>
+      {
+        options.AddPolicy("AllowDevEnvironment",
+            builder => builder.WithOrigins("http://localhost:5000")
+                              .AllowAnyOrigin()
+                              .AllowAnyMethod()
+                              .AllowAnyHeader());
+      });
+
       // Add framework services.
       services.AddMvc();
     }
