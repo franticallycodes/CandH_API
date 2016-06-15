@@ -1,16 +1,15 @@
 ﻿using CandH_API.Models;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace CandH_API.Controllers
 {
   [Route("api/[controller]")]
   [Produces("application/json")]
+  [EnableCors("AllowDevEnvironment")]
   public class ComicStripController : Controller
   {
     private CandH_Context _context;
