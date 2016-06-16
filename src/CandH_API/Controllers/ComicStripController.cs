@@ -20,7 +20,8 @@ namespace CandH_API.Controllers
     }
 
     [HttpGet(Name = "GetComicStrips")]
-    public IActionResult GET()
+    // api/ComicStrip?comicStripId={1}
+    public IActionResult GET(int? comicStripId)
     {
       if (!ModelState.IsValid)
       {
@@ -28,6 +29,11 @@ namespace CandH_API.Controllers
       }
 
       IQueryable<ComicStrip> comicStrips = _context.Strip;
+
+      if (comicStripId != null)
+      {
+        comicStrips.Where(comic => comic.ComicStripId == comicStripId);
+      }
 
       if (comicStrips == null)
       {
