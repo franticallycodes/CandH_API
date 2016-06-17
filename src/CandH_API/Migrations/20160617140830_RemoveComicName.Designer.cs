@@ -8,9 +8,10 @@ using CandH_API.Models;
 namespace CandH_API.Migrations
 {
     [DbContext(typeof(CandH_Context))]
-    partial class CandH_ContextModelSnapshot : ModelSnapshot
+    [Migration("20160617140830_RemoveComicName")]
+    partial class RemoveComicName
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
             modelBuilder
                 .HasAnnotation("ProductVersion", "1.0.0-rc2-20901")
