@@ -6,8 +6,7 @@ namespace CandH_API.Models
   public class ComicStrip
   {
     public int ComicStripId { get; set; }
-    public string Name { get; set; }
-    public DateTime? OriginalPrintDate { get; set; }
+    public DateTime OriginalPrintDate { get; set; }
     public string Transcript { get; set; }
     public byte[] Image { get; set; }
 
