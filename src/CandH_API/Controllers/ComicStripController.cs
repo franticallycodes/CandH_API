@@ -69,5 +69,34 @@ namespace CandH_API.Controllers
       string createdLocation = "http://localhost:5000/api/ComicStrip?stripId=" + newComicStrip.ComicStripId;
       return Created(createdLocation, newComicStrip);
     }
+
+    // Do I need to PUT specifically to this path (/api/ComicStrip/{value}) or is the below just fine?
+    [HttpPut("{id}")]
+    public IActionResult PUT(int id, [FromBody]ComicStrip comicToUpdate)
+    {
+      if (!ModelState.IsValid)
+      {
+        return BadRequest(ModelState);
+      }
+
+      //ComicStrip comic = _context.Strip.Single(com => com.ComicStripId == id);
+
+      //comicToUpdate.ComicStripId = comic.ComicStripId;
+
+      _context.Entry(comicToUpdate).State = EntityState.Modified;
+
+      try
+      {
+        _context.SaveChanges();
+      }
+      catch (DbUpdateException)
+      {
+
+        return new StatusCodeResult(StatusCodes.Status418ImATeapot);
+      }
+
+      string createdLocation = "http://localhost:5000/api/ComicStrip?stripId=" + comicToUpdate.ComicStripId;
+      return Created(createdLocation, comicToUpdate);
+    }
   }
 }
