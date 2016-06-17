@@ -30,10 +30,12 @@ namespace CandH_API.Controllers
 
       IQueryable<ComicStrip> comicStrips = _context.Strip;
 
-      if (comicStripId != null)
+      if (comicStripId == null)
       {
-        comicStrips.Where(comic => comic.ComicStripId == comicStripId);
+        // insert random number if argument parameter is not provided. 1 for now
+        comicStripId = 1;
       }
+      comicStrips.Where(comic => comic.ComicStripId == comicStripId);
 
       if (comicStrips == null)
       {
