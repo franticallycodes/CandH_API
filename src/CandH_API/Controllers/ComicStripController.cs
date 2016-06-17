@@ -20,7 +20,8 @@ namespace CandH_API.Controllers
     }
 
     [HttpGet(Name = "GetComicStrips")]
-    public IActionResult GET()
+    // api/ComicStrip?comicStripId={1}
+    public IActionResult GET(int? comicStripId)
     {
       if (!ModelState.IsValid)
       {
@@ -28,6 +29,13 @@ namespace CandH_API.Controllers
       }
 
       IQueryable<ComicStrip> comicStrips = _context.Strip;
+
+      if (comicStripId == null)
+      {
+        // insert random number if argument parameter is not provided. 1 for now
+        comicStripId = 1;
+      }
+      comicStrips.Where(comic => comic.ComicStripId == comicStripId);
 
       if (comicStrips == null)
       {
