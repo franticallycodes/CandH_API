@@ -47,6 +47,9 @@ namespace CandH_API
       loggerFactory.AddConsole(Configuration.GetSection("Logging"));
       loggerFactory.AddDebug();
 
+      //Add CORS middleware before MVC
+      //app.UseCors("AllowDevEnvironment");
+
       app.UseMvc();
     }
   }

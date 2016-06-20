@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Linq;
 
 namespace CandH_API.Controllers
@@ -26,7 +27,7 @@ namespace CandH_API.Controllers
       if (!ModelState.IsValid)
       {
         return BadRequest(ModelState);
-      }
+      } 
 
       IQueryable<ComicStrip> comicStrips = _context.Strip;
 
@@ -35,7 +36,7 @@ namespace CandH_API.Controllers
         // insert random number if argument parameter is not provided. 1 for now
         comicStripId = 1;
       }
-      comicStrips.Where(comic => comic.ComicStripId == comicStripId);
+      comicStrips = comicStrips.Where(comic => comic.ComicStripId == comicStripId);
 
       if (comicStrips == null)
       {
@@ -68,6 +69,31 @@ namespace CandH_API.Controllers
       // research this more
       string createdLocation = "http://localhost:5000/api/ComicStrip?stripId=" + newComicStrip.ComicStripId;
       return Created(createdLocation, newComicStrip);
+    }
+
+    // Do I need to PUT specifically to this path (/api/ComicStrip/{value}) or is the below just fine?
+    [HttpPut("{id}")]
+    public IActionResult PUT(int id, [FromBody]ComicStrip comicToUpdate)
+    {
+      if (!ModelState.IsValid)
+      {
+        return BadRequest(ModelState);
+      }
+
+      _context.Entry(comicToUpdate).State = EntityState.Modified;
+
+      try
+      {
+        _context.SaveChanges();
+      }
+      catch (DbUpdateException)
+      {
+
+        return new StatusCodeResult(StatusCodes.Status418ImATeapot);
+      }
+
+      string createdLocation = "http://localhost:5000/api/ComicStrip?stripId=" + comicToUpdate.ComicStripId;
+      return Created(createdLocation, comicToUpdate);
     }
   }
 }
