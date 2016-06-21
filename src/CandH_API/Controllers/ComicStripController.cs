@@ -27,9 +27,21 @@ namespace CandH_API.Controllers
       if (!ModelState.IsValid)
       {
         return BadRequest(ModelState);
-      } 
+      }
 
-      IQueryable<ComicStrip> comicStrips = _context.Strip;
+      IQueryable<ComicStrip> comicStrips = from s in _context.Strip
+                                           join e in _context.Emotion
+                                           on s.ComicStripId equals e.ComicStripId into gj
+                                           from substrip in gj.DefaultIfEmpty()
+                                           select new ComicStrip
+                                           {
+                                             ComicStripId = s.ComicStripId,
+                                             OriginalPrintDate = s.OriginalPrintDate,
+                                             Transcript = s.Transcript,
+                                             Image = s.Image,
+                                             Emotions = _context.Emotion
+                                               .Where(emo => emo.ComicStripId == s.ComicStripId).ToList()
+                                           };
 
       if (comicStripId == null && emotionSearchString == null)
       {
@@ -49,7 +61,7 @@ namespace CandH_API.Controllers
         //int emotionCount = emotions.Length;
         IQueryable<ComicStripEmotion> comicsWithEmotions = _context.Emotion;
 
-        IQueryable<ComicStripEmotion> concatEmotions = null;
+        IQueryable<ComicStripEmotion> concatEmotions = comicsWithEmotions.Where(emo => emo.ComicStripId == 0);
         foreach (string emotion in emotions)
         {
           comicsWithEmotions = comicsWithEmotions.Where(comic => comic.Emotion.Contains(emotion));
@@ -57,7 +69,7 @@ namespace CandH_API.Controllers
         }
         List<ComicStripEmotion> emotionalComicsList = concatEmotions.ToList();
 
-        IQueryable<ComicStrip> matchedComics = null;
+        IQueryable<ComicStrip> matchedComics = comicStrips.Where(comic => comic.ComicStripId == 0);
         foreach (ComicStripEmotion emotionalComic in emotionalComicsList)
         {
           comicStrips = comicStrips.Where(comic => comic.ComicStripId == emotionalComic.ComicStripId);
