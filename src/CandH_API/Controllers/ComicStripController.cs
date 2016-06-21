@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace CandH_API.Controllers
@@ -22,22 +22,61 @@ namespace CandH_API.Controllers
 
     [HttpGet(Name = "GetComicStrips")]
     // api/ComicStrip?comicStripId={1}
-    public IActionResult GET(int? comicStripId)
+    public IActionResult GET(int? comicStripId, string emotionSearchString)
     {
       if (!ModelState.IsValid)
       {
         return BadRequest(ModelState);
-      } 
-
-      IQueryable<ComicStrip> comicStrips = _context.Strip;
-
-      if (comicStripId == null)
-      {
-        // insert random number if argument parameter is not provided. 1 for now
-        comicStripId = 1;
       }
-      comicStrips = comicStrips.Where(comic => comic.ComicStripId == comicStripId);
 
+      IQueryable<ComicStrip> comicStrips = from s in _context.Strip
+                                           join e in _context.Emotion
+                                           on s.ComicStripId equals e.ComicStripId into gj
+                                           from substrip in gj.DefaultIfEmpty()
+                                           select new ComicStrip
+                                           {
+                                             ComicStripId = s.ComicStripId,
+                                             OriginalPrintDate = s.OriginalPrintDate,
+                                             Transcript = s.Transcript,
+                                             Image = s.Image,
+                                             Emotions = _context.Emotion
+                                               .Where(emo => emo.ComicStripId == s.ComicStripId).ToList()
+                                           };
+
+      if (comicStripId == null && emotionSearchString == null)
+      {
+        comicStrips = comicStrips.Take(1);
+        return Ok(comicStrips);
+      }
+
+      if (comicStripId != null)
+      {
+        comicStrips = comicStrips.Where(comic => comic.ComicStripId == comicStripId);
+      }
+
+      if (emotionSearchString != null)
+      {
+        emotionSearchString = emotionSearchString.ToLower();
+        string[] emotions = emotionSearchString.Split(' ');
+        //int emotionCount = emotions.Length;
+        IQueryable<ComicStripEmotion> comicsWithEmotions = _context.Emotion;
+
+        IQueryable<ComicStripEmotion> concatEmotions = comicsWithEmotions.Where(emo => emo.ComicStripId == 0);
+        foreach (string emotion in emotions)
+        {
+          comicsWithEmotions = comicsWithEmotions.Where(comic => comic.Emotion.Contains(emotion));
+          concatEmotions = concatEmotions.Concat(comicsWithEmotions);
+        }
+        List<ComicStripEmotion> emotionalComicsList = concatEmotions.ToList();
+
+        IQueryable<ComicStrip> matchedComics = comicStrips.Where(comic => comic.ComicStripId == 0);
+        foreach (ComicStripEmotion emotionalComic in emotionalComicsList)
+        {
+          comicStrips = comicStrips.Where(comic => comic.ComicStripId == emotionalComic.ComicStripId);
+          matchedComics = matchedComics.Concat(comicStrips);
+        }
+        comicStrips = matchedComics;
+      }
       if (comicStrips == null)
       {
         return NotFound();
