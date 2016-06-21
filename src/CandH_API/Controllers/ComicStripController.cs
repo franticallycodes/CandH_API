@@ -40,7 +40,23 @@ namespace CandH_API.Controllers
                                              Transcript = s.Transcript,
                                              Image = s.Image,
                                              Emotions = _context.Emotion
-                                               .Where(emo => emo.ComicStripId == s.ComicStripId).ToList()
+                                               .Where(emo => emo.ComicStripId == s.ComicStripId).ToList(),
+                                             Comments = (from c in _context.Comment
+                                                         join r in _context.Reader
+                                                         on c.ComicUserId equals r.ComicUserId
+                                                         where c.ComicStripId == s.ComicStripId
+                                                         select new ComicStripComment {
+                                                           ComicStripCommentId = c.ComicStripCommentId,
+                                                           ComicStripId = c.ComicStripId,
+                                                           ComicUserId = c.ComicUserId,
+                                                           Comment = c.Comment,
+                                                           Reader = new ComicUser
+                                                           {
+                                                             ComicUserId = r.ComicUserId,
+                                                             Username = r.Username,
+                                                             Email = r.Email
+                                                           }
+                                                         }).ToList()
                                            };
 
       if (comicStripId == null && emotionSearchString == null)
