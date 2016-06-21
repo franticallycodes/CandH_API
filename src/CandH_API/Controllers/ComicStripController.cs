@@ -31,8 +31,8 @@ namespace CandH_API.Controllers
 
       IQueryable<ComicStrip> comicStrips = from s in _context.Strip
                                            join e in _context.Emotion
-                                           on s.ComicStripId equals e.ComicStripId into gj
-                                           from substrip in gj.DefaultIfEmpty()
+                                           on s.ComicStripId equals e.ComicStripId into temp
+                                           from substrip in temp.DefaultIfEmpty()
                                            select new ComicStrip
                                            {
                                              ComicStripId = s.ComicStripId,
