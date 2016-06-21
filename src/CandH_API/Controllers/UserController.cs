@@ -56,13 +56,13 @@ namespace CandH_API.Controllers
 
       IQueryable<ComicUser> checkForUserEmail = _context.Reader.Where(user => user.Email == newUser.Email);
 
+      ComicUser userExists = checkForUserEmail.FirstOrDefault();
       string createdLocation = "http://localhost:5000/api/User?=";
-      if (checkForUserEmail != null)
+      if (userExists != null)
       {
         // should actually return "Already Created", but I want it to return the user from the DB either way.
-        ComicUser user = checkForUserEmail.FirstOrDefault();
-         createdLocation += user.ComicUserId;
-        return Created(createdLocation, user);
+         createdLocation += userExists.ComicUserId;
+        return Created(createdLocation, userExists);
       }
 
       _context.Reader.Add(newUser);
